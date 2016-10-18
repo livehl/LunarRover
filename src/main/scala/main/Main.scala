@@ -6,11 +6,12 @@ import java.net.URL
 import akka.actor.{ActorSystem, Props}
 import common.Tool._
 
-import scala.io.Source
+import scala.io.{Codec, Source}
 /**
   * Created by admin on 2016/9/9.
   */
 object Main {
+  private implicit val code=Codec.UTF8
   def main(args: Array[String]): Unit = {
 
     val actorSystem = ActorSystem.create("LunarRover")
@@ -24,7 +25,7 @@ object Main {
     val lines = new File(getClassPath + "/lines/").listFiles().map(f =>  f.getName -> Source.fromFile(f).getLines().filter(!_.trim.isEmpty).filter(!_.trim.startsWith("#")).map(getLineInfo).toList)
     //启动月球车执行任务
     0 until lines.size map (v=>new LunarRover(lines(v)._2,"月球车"+lines(v)._1,control ))  foreach( lr=> run(lr.start()))
-
+    
     while(true){
       Thread.sleep(500)
       control ! ShowInfo
