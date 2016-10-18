@@ -3,7 +3,6 @@ package main
 import java.text.SimpleDateFormat
 import java.util.Date
 import akka.actor._
-import common.VenusException
 import scala.collection.mutable.Map
 
 /**
@@ -28,7 +27,7 @@ class ControlCenter  extends Actor with ActorLogging {
       println(s"月球车:${name} 到达目的地")
       cars.remove(name)
     case a: Any =>
-      sender ! new VenusException("未识别的对象")
+      sender ! new Exception("未识别的对象")
   }
   //预测月球车位置(简单模拟,只计算方向)
   def prediction(line:LineInfo,time:Long)={

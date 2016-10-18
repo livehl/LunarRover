@@ -8,10 +8,6 @@ import java.util.concurrent.Executors
 import java.util.zip.{GZIPInputStream, GZIPOutputStream}
 import java.util.{Date, TimeZone, UUID}
 
-import com.fasterxml.jackson.databind.{ObjectMapper, SerializationFeature}
-import com.fasterxml.jackson.module.scala.DefaultScalaModule
-import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
-
 import scala.Some
 import scala.collection.mutable.{HashMap, ListBuffer}
 import scala.collection.parallel.{ForkJoinTaskSupport, ParIterable}
@@ -28,11 +24,6 @@ object Tool {
   private val chars: Array[Char] = "0123456789ABCDEF".toCharArray
   private val settingObjectCache = new util.Hashtable[String, AnyRef]()
   private val AES_DEFAULT_KEY = "#$#$#^T#$45rw3d4g$%^"
-  private val map = new ObjectMapper() with ScalaObjectMapper
-  map.registerModule(DefaultScalaModule)
-  map.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
-  map.setTimeZone(TimeZone.getTimeZone("GMT+8"))
-  map.setDateFormat(new SimpleDateFormat("yyyy-MM-dd"))
 
   val pool = Executors.newFixedThreadPool(100)
   implicit val ec: ExecutionContext = ExecutionContext.fromExecutor(pool)
@@ -50,22 +41,6 @@ object Tool {
         resutl
       }
     }
-  }
-
-  implicit class AnyRefAddMethod[A <: AnyRef](bean: A) {
-    def toJson(): String = {
-      map.writeValueAsString(bean)
-    }
-
-    def toBean(json: String): A = {
-      Tool.toBean(json, bean.getClass)
-    }
-
-
-  }
-
-  def toBean[T](json: String, clazz: Class[T]): T = {
-    map.readValue(json, clazz).asInstanceOf[T]
   }
 
 
@@ -149,18 +124,6 @@ object Tool {
     }
   }
 
-
-  def cacheMethodString[T<:AnyRef](key: String, time: Int)(f: => T):T = {
-    val value=Cache.getCache(key)
-    if (value.isDefined) {
-      value.get.asInstanceOf[T]
-    } else {
-      val v = f
-      Cache.setCache(key, v, time)
-      v
-    }
-  }
-
   //后台执行
   def run[T](body: => T) = Future[T](body)
 
@@ -191,27 +154,8 @@ object Tool {
 
     def toDoubleList = StrtoList[Double](bean, ",", _.toDouble)
 
-    def toDate = if (null == bean || bean.isEmpty) null else TimeTool.parseStringToDate(bean)
-
-    def toDateTime = if (null == bean || bean.isEmpty) null else TimeTool.parseStringToDateTime(bean)
-
-    def jsonToMap=Tool.toBean(bean,Map.empty[Any,Any].getClass)
-
-    def jsonToHashMap=Tool.toBean(bean,HashMap[String, Any]().getClass)
-
-    def dateExp=if (null == bean || bean.isEmpty) new Date() else TimeTool.getAfterDate(bean)
-
   }
 
-  implicit class DateAddMethod[A <: Date](bean: A) {
-    //yy-mm-dd
-    def sdate = if (bean == null) "" else TimeTool.getDateStringByDate(bean)
-
-    //yy-mm-dd
-    def sdatetime = if (bean == null) "" else TimeTool.getFormatStringByDate(bean)
-
-    def toSqlDate=if (null == bean) null else new java.sql.Date(bean.getTime)
-  }
 
   implicit class NumberAddMethod[A <: BigDecimal](bean: A) {
     def toMoney(): BigDecimal = {
