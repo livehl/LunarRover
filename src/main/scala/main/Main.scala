@@ -21,9 +21,9 @@ object Main {
       new LineInfo(new Point(array(0).toInt, array(1).toInt), array(2).toInt, array(3).toInt, array(4).toInt)
     }
     //将文本数据转化为线路信息  跳过空行和注释
-    val lines = new File(getClassPath + "/lines/").listFiles().map(f =>Source.fromFile(f).getLines().filter(!_.trim.isEmpty).filter(!_.trim.startsWith("#")).map(getLineInfo).toList)
+    val lines = new File(getClassPath + "/lines/").listFiles().map(f =>  f.getName -> Source.fromFile(f).getLines().filter(!_.trim.isEmpty).filter(!_.trim.startsWith("#")).map(getLineInfo).toList)
     //启动月球车执行任务
-    0 until lines.size map (v=>new LunarRover(lines(v),"月球车"+v,control ))  foreach( lr=> run(lr.start()))
+    0 until lines.size map (v=>new LunarRover(lines(v)._2,"月球车"+lines(v)._1,control ))  foreach( lr=> run(lr.start()))
   }
 
   private def getClassPath()={
