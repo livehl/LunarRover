@@ -13,6 +13,7 @@ class LunarRover(lines:List[LineInfo],name:String,control:ActorRef){
             Thread.sleep(1000)
             control ! LunarRoverInfo(name,line)
         }
+      control ! LunarEndRoverInfo(name)
     }
 }
 
