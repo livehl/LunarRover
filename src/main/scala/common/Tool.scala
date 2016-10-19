@@ -25,7 +25,7 @@ object Tool {
   private val settingObjectCache = new util.Hashtable[String, AnyRef]()
   private val AES_DEFAULT_KEY = "#$#$#^T#$45rw3d4g$%^"
 
-  val pool = Executors.newFixedThreadPool(100)
+  val pool = Executors.newFixedThreadPool(Runtime.getRuntime.availableProcessors*2)
   implicit val ec: ExecutionContext = ExecutionContext.fromExecutor(pool)
 
   /*
